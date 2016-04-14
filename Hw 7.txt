@@ -1,0 +1,27 @@
+Homework 7(B) RELATIONAL STORAGE OF XML DOCUMENTS
+
+DUE  SUNDAY NIGHT (easly Monday AM) April 18th, 4am
+
+
+(1) Consider the book dtd at https://www.w3.org/TR/xquery-use-cases/#tree
+
+Derive a relational schema for storing documents that are valid according
+to this DTD, following the procedure described in lecture
+*   'normalize' the DTD
+*   draw the graph 
+*   specify the relational schema (table & column names; underline keys;
+    indicate with arrows foreign key references)
+[Please be sure the pictures are readable after you have uploaded them]
+
+(2)
+
+  Assuming that a document is stored in two database relations Edge and
+  Leaf, as discussed in class.  (Note that you do not need to know the DTD
+  or anything about the document.)  Write an SQL query and a Datalog query
+  to retrieve the nodes for the following Xpath expression.  For full
+  credit the Datalog query should be constructed
+  "mechanically/agorithmically", with intermediate predicates and rules,
+  using the instructions in the lecture notes.
+
+                /state/river[text()="Mississippi"]/data(@capital)
+
