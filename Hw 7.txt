@@ -25,3 +25,86 @@ to this DTD, following the procedure described in lecture
 
                 /state/river[text()="Mississippi"]/data(@capital)
 
+
+Answers
+1)
+  <!ELEMENT book (title, author+, section+)>
+  <!ELEMENT title (#PCDATA)>
+  <!ELEMENT author (#PCDATA)>
+  <!ELEMENT section (title, (p | figure | section)* )>
+  <!ATTLIST section
+      id         ID    #IMPLIED
+      difficulty CDATA #IMPLIED>
+  <!ELEMENT p (#PCDATA)>
+  <!ELEMENT figure (title, image)>
+  <!ATTLIST figure
+       width   CDATA   #REQUIRED
+       height  CDATA   #REQUIRED >
+  <!ELEMENT image EMPTY>
+  <!ATTLIST image
+       source  CDATA   #REQUIRED >  
+
+
+class Book {
+	String title;
+	String author;
+	Section section;
+}
+
+class Section {
+	String title;
+	String ID;
+	String difficulty;
+	String p;
+	Figure figure;
+	Section section;
+}
+
+class Figure {
+	String title;
+	String width;
+	String height;
+	Image image;
+}
+
+class Image {
+	String source;
+}
+
+book ::= (title author+ section+)
+section ::= (title (p | figure | section)* id difficulty)
+figure ::= (title image width height)
+title ::= string
+author ::= string
+p ::= string
+id ::= string
+difficulty ::= string
+image ::= string
+width ::= string
+height ::= string
+source ::= string
+
+(2)
+
+  Assuming that a document is stored in two database relations Edge and
+  Leaf, as discussed in class.  (Note that you do not need to know the DTD
+  or anything about the document.)  Write an SQL query and a Datalog query
+  to retrieve the nodes for the following Xpath expression.  For full
+  credit the Datalog query should be constructed
+  "mechanically/agorithmically", with intermediate predicates and rules,
+  using the instructions in the lecture notes.
+
+                /state/river[text()="Mississippi"]/data(@capital)
+
+data of river
+	(which has firstname
+
+SELECT capital 
+FROM data 
+WHERE data 
+IN 
+(
+	SELECT data
+	FROM river WHERE text EQUALS mississippi)
+)
+
