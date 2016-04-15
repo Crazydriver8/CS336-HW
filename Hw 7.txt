@@ -11,6 +11,12 @@ to this DTD, following the procedure described in lecture
 *   draw the graph 
 *   specify the relational schema (table & column names; underline keys;
     indicate with arrows foreign key references)
+
+book(bookID,title)
+author(bookID,AuthorID)
+section(bookID,sectionID,title,p,figure,sectionID,difficulty)
+figure(sectionID,title,image,source,height,width)
+
 [Please be sure the pictures are readable after you have uploaded them]
 
 (2)
@@ -25,6 +31,7 @@ to this DTD, following the procedure described in lecture
 
                 /state/river[text()="Mississippi"]/data(@capital)
 
+<<<<<<< HEAD
 
 Answers
 1)
@@ -108,3 +115,14 @@ IN
 	FROM river WHERE text EQUALS mississippi)
 )
 
+=======
+select r.capital
+from river r, state s
+where r.pid = s.sid and r.text = Mississippi
+
+path(Start,Current) :- edge(Start,state,X),
+			edge(X,river,Y),
+			leaf(Y,Mississippi),
+			edge(Y,capital,Z),
+			leaf(Z,Current).
+>>>>>>> origin/master
