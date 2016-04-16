@@ -31,7 +31,6 @@ figure(sectionID,title,image,source,height,width)
 
                 /state/river[text()="Mississippi"]/data(@capital)
 
-<<<<<<< HEAD
 
 Answers
 1)
@@ -125,4 +124,3 @@ path(Start,Current) :- edge(Start,state,X),
 			leaf(Y,Mississippi),
 			edge(Y,capital,Z),
 			leaf(Z,Current).
->>>>>>> origin/master
