@@ -53,7 +53,7 @@ Answers
 
 class Book {
 	String title;
-	String author;
+	Author author;
 	Section section;
 }
 
@@ -61,7 +61,7 @@ class Section {
 	String title;
 	String ID;
 	String difficulty;
-	String p;
+	P p;
 	Figure figure;
 	Section section;
 }
@@ -75,6 +75,14 @@ class Figure {
 
 class Image {
 	String source;
+}
+
+class Author {
+	String author;
+}
+
+class P {
+	String p;
 }
 
 book ::= (title author+ section+)
@@ -102,24 +110,11 @@ source ::= string
 
                 /state/river[text()="Mississippi"]/data(@capital)
 
-data of river
-	(which has firstname
+SELECT r.capital
+FROM river r, state s
+WHERE r.pid = s.sid AND r.text = "Mississippi"
 
-SELECT capital 
-FROM data 
-WHERE data 
-IN 
-(
-	SELECT data
-	FROM river WHERE text EQUALS mississippi)
-)
-
-=======
-select r.capital
-from river r, state s
-where r.pid = s.sid and r.text = Mississippi
-
-path(Start,Current) :- edge(Start,state,X),
+path(Start,Current) :- 	edge(Start,state,X),
 			edge(X,river,Y),
 			leaf(Y,Mississippi),
 			edge(Y,capital,Z),
