@@ -12,11 +12,6 @@ to this DTD, following the procedure described in lecture
 *   specify the relational schema (table & column names; underline keys;
     indicate with arrows foreign key references)
 
-book(bookID,title)
-author(bookID,AuthorID)
-section(bookID,sectionID,title,p,figure,sectionID,difficulty)
-figure(sectionID,title,image,source,height,width)
-
 [Please be sure the pictures are readable after you have uploaded them]
 
 (2)
@@ -50,6 +45,10 @@ Answers
   <!ATTLIST image
        source  CDATA   #REQUIRED >  
 
+book(bookID,title)
+author(bookID,AuthorID)
+section(bookID,sectionID,title,p,figure,sectionID,difficulty)
+figure(sectionID,title,image,source,height,width)
 
 class Book {
 	String title;
