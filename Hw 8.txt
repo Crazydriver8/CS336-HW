@@ -1,0 +1,149 @@
+Info & Data HW 8
+8(A) ISOLATION LEVELS
+
+Consider a table Item(name,cost) where name is a key.  Suppose initially
+there are two tuples in Item: (A,20) and (B,30).  Consider the following
+two concurrent transactions, each of which runs once and commits.  You may
+assume there are no other transactions in the system and that individual
+statements execute atomically.
+T1: begin transaction
+    S1: insert into Item values (C,40)
+    S2: update Item set price = price+30 where name= A
+    commit
+
+T2: begin transaction
+    S3: select avg(price) as p1 from Item
+    S4: select avg(price) as p2 from Item
+    commit
+
+Suppose that transaction T1 executes with isolation level _serializable_.
+
+(a) If transaction T2 also executes with isolation level _serializable_, what
+are all the possible pairs of values p1 and p2 returned by T2?  
+
+answer:
+I am assuming that in the problem description they meant Item(name, price) rather
+than Item(name, cost) due to the price declarations in the transactions.
+
+Serializable waits until rows write-locked by other transactions are unlocked.
+It has a shared lock on tuples as well as index
+
+T1 executes first -> (40, 40)
+T2 executes first -> (25, 25)
+
+(b) If transaction T2 executes with isolation level _repeatable read_, what
+are all the possible pairs of values p1 and p2 returned by T2?
+
+answer:
+Repeatable read performs similarly to serializable for the purposes of this
+question, places shared lock on tuples retrieved by queries
+
+T1 executes first -> (40, 40)
+T2 executes first -> (25, 25)
+
+(c) If transaction T2 executes with isolation level _read committed_, what
+are all the possible pairs of values p1 and p2 returned by T2?
+
+answer:
+Read committed waits until rows write-locked by other transactions are unlocked.
+It requires a read-lock to be obtained for all tuples touched by queries
+
+T1 executes first -> (40, 40)
+T2 executes first -> (25, 25)
+S3 - S1 - S2 - S4 -> (25, 40)
+
+(d) If transaction T2 executes with isolation level _read uncommitted_,
+what are all the possible pairs of values p1 and p2 returned by T2?
+
+answer:
+Read uncommitted does not isolate transactions from each other. It allows queries
+to read data without acquiring any lock.
+
+T1 executes first -> (40, 40)
+T2 executes first -> (25, 25)
+S3 - S1 - S2 - S4 -> (25, 40)
+S3 - S1 - S4 - S2 -> (25, 30)
+S1 - S3 - S4 - S2 -> (30, 30)
+S1 - S3 - S2 - S4 -> (30, 40)
+
+8(B) CONFLICT SERIALIZABILITY AND LOCKING
+
+Consider the following  schedules of *attempted* reads/writes by transactions.
+ 
+>>Schedule A <<
+ T1  T2
+r(m)
+r(n)
+	r(n)
+	w(m)
+
+>>Schedule B <<
+ T1	 T2	 T3
+r(m)
+	r(y)
+		w(z)
+	w(m)
+w(n)
+		abort (and release locks held)
+
+>>Schedule C <<
+ T1	 T2	
+r(m)
+	r(n)
+	w(m)
+w(n)
+
+
+>>Schedule D <<
+ T1	 T2	 T3
+r(C)
+		r(A)
+	w(B)
+		r(A)
+	w(C)
+	w(D)
+r(B)
+		r(B)
+		r(C)
+		
+
+For  schedules A and B (and for bonus credit, schedules C and D) do the 
+following: 
+
+1/ Assuming that the reads/writes actually occur in the order given, 
+indicate whether or not the schedule is (i) serial, (ii) serializable (in 
+which case say which serial order it is equivalent to),  (iii) 
+non-serializable (in which case indicate what kind of conflict there is 
+(read-write, write-write, write-read))
+
+2/ Assume that you use a locking mechanism, and in each schedule every read 
+r(b) is immediately preceded by an attempt to acquire an s-lock on b, and 
+right before every write w(b) there is an attempt to acquire an x-lock on 
+b.  Annotate the schedule to indicate where a transaction has to wait or 
+where deadlock occurs (see lecture notes for such an annotation example) 
+under 2 assumptions:
+
+i/ each transaction commits,  (and thus releases its locks) immediately after 
+the last r/w operation in it, if it reaches that point;
+
+ii/ the commits in each transaction occur at the end of the entire schedule 
+(i.e., when all transaction actions are done reading and writing), and in 
+the order T1.commits, T2.commits (, T3.commits).  So schedule A would look 
+like
+
+T1  	 		T2
+Slock(m,T1);r(m)
+Slock(n,T1); r(n)	
+			Slock(n,T2);r(n)
+			Xlock(m,T2);w(m)
+attempt commit
+			attempt commit
+(Note:  the schedules say "attempt commit" since one cannot be sure that 
+the corresponding action is reached.)
+ 
+3/ Which of the schedules in 2(i) and 2(ii) are "strict 2-phase locking"?
+
+[ASIDE ON NOTATION: Some books write schedule by mixing the actions, 
+and adding an argument (or subscript) to indicate which transaction 
+executes it. e,g,   >>Schedule A << with policy (1)  would be
+    r(1,m)  r(1,n)  try-commit(1) r(2,n)  w(2,m) try-commit(2)
