@@ -21,7 +21,7 @@ Suppose that transaction T1 executes with isolation level _serializable_.
 (a) If transaction T2 also executes with isolation level _serializable_, what
 are all the possible pairs of values p1 and p2 returned by T2?  
 
-answer:
+ANSWER:
 I am assuming that in the problem description they meant Item(name, price) rather
 than Item(name, cost) due to the price declarations in the transactions.
 
@@ -34,7 +34,7 @@ T2 executes first -> (25, 25)
 (b) If transaction T2 executes with isolation level _repeatable read_, what
 are all the possible pairs of values p1 and p2 returned by T2?
 
-answer:
+ANSWER:
 Repeatable read performs similarly to serializable for the purposes of this
 question, places shared lock on tuples retrieved by queries
 
@@ -44,7 +44,7 @@ T2 executes first -> (25, 25)
 (c) If transaction T2 executes with isolation level _read committed_, what
 are all the possible pairs of values p1 and p2 returned by T2?
 
-answer:
+ANSWER:
 Read committed waits until rows write-locked by other transactions are unlocked.
 It requires a read-lock to be obtained for all tuples touched by queries
 
@@ -55,7 +55,7 @@ S3 - S1 - S2 - S4 -> (25, 40)
 (d) If transaction T2 executes with isolation level _read uncommitted_,
 what are all the possible pairs of values p1 and p2 returned by T2?
 
-answer:
+ANSWER:
 Read uncommitted does not isolate transactions from each other. It allows queries
 to read data without acquiring any lock.
 
@@ -116,6 +116,22 @@ which case say which serial order it is equivalent to),  (iii)
 non-serializable (in which case indicate what kind of conflict there is 
 (read-write, write-write, write-read))
 
+ANSWER:
+Schedule A is Serial (i)
+-T1 performs all operations before T2 (does not interleave actions of different
+transactions)
+
+Schedule B is Serializable (ii)
+-Equivalent to serial execution of T1 -> T2 -> T3 or T1 -> T3 -> T2
+
+Schedule C is Non-Serializable (iii)
+-All read operations performed before write operations, but T1 and T2 rely on the
+same tables. As such, they end up having WR (write-read) conflicts as T2 writes to m after T1
+reads from it (reads uncommitted data)
+
+Schedule D is Serializable (ii)
+-Equivalent to serial execution of T2 -> T1 -> T3 or T2 -> T3 -> T1
+
 2/ Assume that you use a locking mechanism, and in each schedule every read 
 r(b) is immediately preceded by an attempt to acquire an s-lock on b, and 
 right before every write w(b) there is an attempt to acquire an x-lock on 
@@ -140,6 +156,9 @@ attempt commit
 			attempt commit
 (Note:  the schedules say "attempt commit" since one cannot be sure that 
 the corresponding action is reached.)
+
+Answer:
+
  
 3/ Which of the schedules in 2(i) and 2(ii) are "strict 2-phase locking"?
 
