@@ -157,8 +157,21 @@ attempt commit
 (Note:  the schedules say "attempt commit" since one cannot be sure that 
 the corresponding action is reached.)
 
-Answer:
+ANSWER:
+i)
+T1  	 		T2
+Slock(m,T1);r(m)
+Slock(n,T1); r(n)	
+			Slock(n,T2);r(n) <- must wait for T1 lock on n to release
+			Xlock(m,T2);w(m) <- must wait for T1 lock on m to release
 
+ii)
+Slock(m,T1);r(m)
+Slock(n,T1); r(n)	
+			Slock(n,T2);r(n) <- DEADLOCK, does not have locks for n
+			Xlock(m,T2);w(m)
+attempt commit
+			attempt commit
  
 3/ Which of the schedules in 2(i) and 2(ii) are "strict 2-phase locking"?
 
@@ -166,3 +179,7 @@ Answer:
 and adding an argument (or subscript) to indicate which transaction 
 executes it. e,g,   >>Schedule A << with policy (1)  would be
     r(1,m)  r(1,n)  try-commit(1) r(2,n)  w(2,m) try-commit(2)
+
+ANSWER:
+2(ii) is in strict two-phase locking protocol, as all locks are released only when
+the transaction completes
