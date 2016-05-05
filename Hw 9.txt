@@ -1,0 +1,190 @@
+Info & Data HW 9
+
+Q1A. DOCUMENT SIMILARITY
+
+Assume a document BDoc is obtained from ADoc by repeating every word
+in it (e.g., if ADoc={apple, pear, pear} then BDoc={apple,apple,pear,pear,
+pear,pear})
+
+What is the relationship between similarity(BDoc,Q) and similarity(ADoc,Q)
+for arbitrary Q when one uses the cosine measure to compute similarity of
+vectors, and either (a) or (b) or (c) below:
+
+(a) boolean vector representation for documents and the query.
+
+ANSWER:
+	apple	pear
+ADoc	1	1
+BDoc	1	1
+
+
+(b) term frequency vector representation for documents and the query
+
+ANSWER:
+	apple	pear
+ADoc	1	2
+BDoc	2	4
+
+
+(c) TF-IDF vector representation for documents and the query
+
+ANSWER:
+TF apple ADoc : 1/3
+TF pear ADoc : 2/3
+TF apple BDoc : 1/3
+TF pear BDoc : 2/3
+TF apple : 3/9 = 1/3
+TF pear : 6/9 = 2/3
+IDF(apple) : log(9/3) = 0.32
+IDF(pear) : log(9/6) = 0.16
+
+TF-IDF(apple) : 0.32 * 1/3 = 0.11
+TF-IDF(pear) : 0.16 * 2/3 = 0.11
+
+
+[These may require only a little bit of high-school algebra.]
+
+
+
+Q1B. RECALL-PRECISION CURVE
+
+Given a query Q and a collection of documents, an IR system returns in
+decreasing order of rank 12 documents d1, d2, ....  d12, of which only 5
+are judged relevant by the user.  (The user does not get to see the whole
+corpus of documents to rate them.)  Knowing that the 6-point
+precision-recall curve has the following points
+
+    (0,1) (1/5, 1/3) (2/5, 2/7) (3/5, 3/8) (4/5, 4/11) (5/5, 5/12)
+
+can you tell which of the 12 documents are the relevant ones?  (This is a
+backwards reasoning problem.)
+
+
+Q1C.  PAGE RANK  
+
+Consider the graph of a web with pages {a,b,c,d}, where there are
+edges (a,a), (a,b), (b,c), (c,b), (d,c), (d,d).
+
+Draw this graph.
+
+What would you expect about either the relative or absolute values of
+the ranks of these nodes, given the intuitions underlying PageRank.
+
+ANSWER:
+I assume that B and C are ranked more highly than A and D
+
+Write out the matrix M representing the graph so rank vectors R
+satisfy R = M x R.  (you can start with the equations first)
+
+ANSWER:
+a = a/2
+b = c/1 + a/2
+c = b/1 + d/2
+d = d/2
+
+a + b + c + d = 1
+a = 1
+b = a/2 + c = 1/2 + c =
+c = d/2 + b = 1/2 + b = 
+d = 1
+
+PR(A) = (1-d) + d(PR(A)/2)
+PR(B) = (1-d) + d(PR(C)/1) + d(PR(A)/2)
+PR(C) = (1-d) + d(PR(B)/1) + d(PR(D)/2)
+PR(D) = (1-d) + d(PR(D)/2)
+
+
+Starting with R=(1,1,1,1), show 3 iterations of the solutions for the
+above equation. (I suggest using a spreadsheet.) What is the trend of
+the rank values?
+
+ANSWER:
+Iter 1)
+PR(A) = (1-d) + d(1/2) = 1-d/2
+PR(B) = (1-d) + d(1/1) + d(1/2) = 1 - d + 3d/2
+PR(C) = (1-d) + d(1/1) + d(1/2) = 1 - d + 3d/2
+PR(D) = (1-d) + d(1/2) = 1-d/2
+
+Iter 2)
+
+Iter 3)
+
+Now use the modified formula R = 0.8 (M x R) + 0.2, which adds a
+probability of a "random jump" to some other node. Once again,
+starting with (1,1,1,1), compute 3 iterations of the new
+equation. What is the trend of the rank values now?
+
+Which of these is a more reasonable view of the appropriate
+ranking/interest of page d?
+
+
+Q2 VIEWS (AND TRIGGERS)
+
+Consider the following three partial relation schemas
+
+TABLE account(act# ,branch# ,owner_ssn, balance, PRIMARY KEY(act#,branch#));
+TABLE checkingAct(act#,branch#,fee);
+TABLE savingsAct(act#,branch#,interest,minBalance);
+
+The intention is that checking and saving accounts are subtypes of accounts.
+
+1/ Add necessary primary key definitions for checkingAct and savingsAct.
+
+ANSWER:
+TABLE checkingAct(act#, branch#, fee, PRIMARY KEY(act#, branch#, fee)
+TABLE savingsAct(act#, branch#, interest, minBalance, PRIMARY KEY(act#, branch#, interest)
+
+2/ Add necessary referential integrity constraints.
+
+ANSWER:
+ALTER TABLE checkingAct
+	ADD FOREIGN KEY (act#, branch#) REFERENCES account(act#, branch#)
+ALTER TABLE savingsAct
+	ADD FOREIGN KEY (act#, branch#) REFERENCES account(act#, branch#)
+
+3/ Consider the view singleAct(owner_SSN,act#,branch#), which keeps track of the
+people who have a SINGLE account at that branch.
+
+a) Write a Datalog definition of this view.
+
+ANSWER:
+singleAct
+
+b) Give an SQL definition of the this view.
+
+ANSWER: 
+CREATE VIEW singleAct AS
+SELECT owner_SSN, act#, branch# FROM account WHERE COUNT(
+	SELECT * FROM account WHERE branch# IN (SELECT branch# FROM account) AND act# IN (SELECT act# FROM account)
+) >= 1
+
+c) Consider all possible updates to columns, as well as insertion and
+deletions to the view singleAct, and describe those that have a single
+reasonable translation to base table accounts.
+
+ANSWER:
+insertion into any account table where owner_ssn matches an existing account's owner_ssn
+update of a owner_ssn that matches another account's owner_ssn
+
+d) Write ONE trigger that implements such a view update, from part (c)
+
+ANSWER:
+CREATE TRIGGER singleEnforce
+BEFORE INSERT OR UPDATE ON account
+AS
+IF EXISTS (
+	SELECT *
+	FROM account
+	WHERE owner_ssn IN (
+		SELECT owner_ssn
+		FROM account
+)
+BEGIN
+ROLLBACK TRANSACTION
+RETURN
+END;
+
+
+e) Assuming that singleAct is materialized, write a trigger that implements
+an incremental update to the materialized view  based on some insertion
+into a base relation for it.
